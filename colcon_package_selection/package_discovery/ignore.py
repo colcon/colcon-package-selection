@@ -1,0 +1,62 @@
+# Copyright 2018 Dirk Thomas
+# Licensed under the Apache License, Version 2.0
+
+import re
+
+from colcon_core.package_augmentation import PackageAugmentationExtensionPoint
+from colcon_core.package_discovery import logger
+from colcon_core.package_discovery import PackageDiscoveryExtensionPoint
+from colcon_core.plugin_system import satisfies_version
+
+
+class IgnorePackageDiscovery(
+    PackageDiscoveryExtensionPoint, PackageAugmentationExtensionPoint,
+):
+    """Ignore discovered packages based on cli arguments."""
+
+    def __init__(self):  # noqa: D107
+        super().__init__()
+        satisfies_version(
+            PackageDiscoveryExtensionPoint.EXTENSION_POINT_VERSION, '^1.0')
+        satisfies_version(
+            PackageAugmentationExtensionPoint.EXTENSION_POINT_VERSION, '^1.0')
+        self._args = None
+
+    def add_arguments(self, *, parser, with_default):  # noqa: D102
+        parser.add_argument(
+            '--packages-ignore', nargs='*', metavar='PKG_NAME',
+            help='Ignore packages as if they were not discovered')
+        parser.add_argument(
+            '--packages-ignore-regex', nargs='*', metavar='PATTERN',
+            help='Ignore packages where any of the patterns match the package '
+                 'name')
+
+    def has_parameters(self, *, args):  # noqa: D102
+        self._args = args
+        return False
+
+    def discover(self, *, args, identification_extensions):  # noqa: D102
+        return set()
+
+    def augment_packages(
+        self, descs, *, additional_argument_names=None
+    ):  # noqa: D102
+        # check patterns and remove invalid ones
+        for pattern in list(self._args.packages_ignore_regex or []):
+            try:
+                re.compile(pattern)
+            except Exception as e:
+                logger.warn(
+                    "the --packages-ignore-regex '{pattern}' failed to "
+                    'compile: {e}'.format_map(locals()))
+                self._args.packages_ignore_regex.remove(pattern)
+
+        # remove the descriptors which should be ignored
+        for desc in set(descs):
+            if desc.name in (self._args.packages_ignore or []):
+                descs.remove(desc)
+                continue
+            for pattern in (self._args.packages_ignore_regex or []):
+                if re.match(pattern, desc.name):
+                    descs.remove(desc)
+                    break
