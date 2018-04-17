@@ -18,32 +18,32 @@ class StartEndPackageSelection(PackageSelectionExtensionPoint):
 
     def add_arguments(self, *, parser):  # noqa: D102
         parser.add_argument(
-            '--package-start', metavar='PKG_NAME',
+            '--packages-start', metavar='PKG_NAME',
             help='Skip packages before this in flat topological ordering')
         parser.add_argument(
-            '--package-end', metavar='PKG_NAME',
+            '--packages-end', metavar='PKG_NAME',
             help='Skip packages after this in flat topological ordering')
 
     def check_parameters(self, args, pkg_names):  # noqa: D102
         # exit on invalid arguments
-        if args.package_start and args.package_start not in pkg_names:
+        if args.packages_start and args.packages_start not in pkg_names:
             sys.exit(
-                "Package '{args.package_start}' specified with "
-                '--package-start was not found'
+                "Package '{args.packages_start}' specified with "
+                '--packages-start was not found'
                 .format_map(locals()))
-        if args.package_end and args.package_end not in pkg_names:
+        if args.packages_end and args.packages_end not in pkg_names:
             sys.exit(
-                "Package '{args.package_end}' specified with --package-end "
+                "Package '{args.packages_end}' specified with --packages-end "
                 'was not found'
                 .format_map(locals()))
 
     def select_packages(self, args, decorators):  # noqa: D102
-        pkg_within_range = not args.package_start
+        pkg_within_range = not args.packages_start
         for decorator in decorators:
             pkg = decorator.descriptor
 
             # identify start of range
-            if pkg.name == args.package_start:
+            if pkg.name == args.packages_start:
                 pkg_within_range = True
 
             selected = pkg_within_range
@@ -55,11 +55,11 @@ class StartEndPackageSelection(PackageSelectionExtensionPoint):
                 decorator.selected = False
 
             # identify end of range
-            if pkg.name == args.package_end:
+            if pkg.name == args.packages_end:
                 if not pkg_within_range:
                     sys.exit(
-                        "The --package-end package '{args.package_end}' "
-                        'occurs topologically before the --package-start '
-                        "package '{args.package_start}'"
+                        "The --packages-end package '{args.packages_end}' "
+                        'occurs topologically before the --packages-start '
+                        "package '{args.packages_start}'"
                         .format_map(locals()))
                 pkg_within_range = False
