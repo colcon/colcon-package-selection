@@ -41,6 +41,8 @@ class IgnorePackageDiscovery(
     def augment_packages(
         self, descs, *, additional_argument_names=None
     ):  # noqa: D102
+        pkg_names = {d.name for d in descs}
+
         # check patterns and remove invalid ones
         for pattern in list(self._args.packages_ignore_regex or []):
             try:
@@ -50,6 +52,17 @@ class IgnorePackageDiscovery(
                     "the --packages-ignore-regex '{pattern}' failed to "
                     'compile: {e}'.format_map(locals()))
                 self._args.packages_ignore_regex.remove(pattern)
+
+            if not any(re.match(pattern, pkg_name) for pkg_name in pkg_names):
+                logger.warn(
+                    "the --packages-ignore-regex '{pattern}' doesn't match "
+                    'any of the package names'.format_map(locals()))
+
+        for pkg_name in (self._args.packages_ignore or []):
+            if pkg_name not in pkg_names:
+                logger.warn(
+                    "ignoring unknown package '{pkg_name}' in "
+                    '--packages-ignore'.format_map(locals()))
 
         # remove the descriptors which should be ignored
         for desc in set(descs):
