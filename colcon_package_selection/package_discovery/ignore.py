@@ -48,19 +48,19 @@ class IgnorePackageDiscovery(
             try:
                 re.compile(pattern)
             except Exception as e:
-                logger.warn(
+                logger.warning(
                     "the --packages-ignore-regex '{pattern}' failed to "
                     'compile: {e}'.format_map(locals()))
                 self._args.packages_ignore_regex.remove(pattern)
 
             if not any(re.match(pattern, pkg_name) for pkg_name in pkg_names):
-                logger.warn(
+                logger.warning(
                     "the --packages-ignore-regex '{pattern}' doesn't match "
                     'any of the package names'.format_map(locals()))
 
         for pkg_name in (self._args.packages_ignore or []):
             if pkg_name not in pkg_names:
-                logger.warn(
+                logger.warning(
                     "ignoring unknown package '{pkg_name}' in "
                     '--packages-ignore'.format_map(locals()))
 

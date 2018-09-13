@@ -37,13 +37,13 @@ class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
         # warn about ignored arguments
         for pkg_name in args.packages_select or []:
             if pkg_name not in pkg_names:
-                logger.warn(
+                logger.warning(
                     "ignoring unknown package '{pkg_name}' in "
                     '--packages-select'.format_map(locals()))
 
         for pkg_name in args.packages_skip or []:
             if pkg_name not in pkg_names:
-                logger.warn(
+                logger.warning(
                     "ignoring unknown package '{pkg_name}' in "
                     '--packages-skip'.format_map(locals()))
 
@@ -52,14 +52,14 @@ class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
             try:
                 re.compile(pattern)
             except Exception as e:
-                logger.warn(
+                logger.warning(
                     "the --packages-select-regex '{pattern}' failed to "
                     'compile: {e}'.format_map(locals()))
                 args.packages_select_regex.remove(pattern)
                 continue
 
             if not any(re.match(pattern, pkg_name) for pkg_name in pkg_names):
-                logger.warn(
+                logger.warning(
                     "the --packages-select-regex '{pattern}' doesn't match "
                     'any of the package names'.format_map(locals()))
 
@@ -68,14 +68,14 @@ class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
             try:
                 re.compile(pattern)
             except Exception as e:
-                logger.warn(
+                logger.warning(
                     "the --packages-skip-regex '{pattern}' failed to "
                     'compile: {e}'.format_map(locals()))
                 args.packages_skip_regex.remove(pattern)
                 continue
 
             if not any(re.match(pattern, pkg_name) for pkg_name in pkg_names):
-                logger.warn(
+                logger.warning(
                     "the --packages-skip-regex '{pattern}' doesn't match any "
                     'of the package names'.format_map(locals()))
 
