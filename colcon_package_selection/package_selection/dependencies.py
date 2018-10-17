@@ -77,10 +77,7 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
         if args.packages_select_by_dep:
             deps = set(args.packages_select_by_dep)
             for decorator in decorators:
-                if (
-                    decorator.descriptor.name not in deps and
-                    not (deps & set(decorator.recursive_dependencies))
-                ):
+                if not (deps & set(decorator.recursive_dependencies)):
                     if decorator.selected:
                         pkg = decorator.descriptor
                         logger.info(
@@ -91,10 +88,7 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
         if args.packages_skip_by_dep:
             deps = set(args.packages_skip_by_dep)
             for decorator in decorators:
-                if (
-                    decorator.descriptor.name in deps or
-                    (deps & set(decorator.recursive_dependencies))
-                ):
+                if deps & set(decorator.recursive_dependencies):
                     if decorator.selected:
                         pkg = decorator.descriptor
                         logger.info(
