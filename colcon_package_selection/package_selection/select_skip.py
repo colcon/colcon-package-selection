@@ -51,7 +51,7 @@ class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
             # check patterns and remove invalid ones
             try:
                 re.compile(pattern)
-            except Exception as e:
+            except Exception as e:  # noqa: F841
                 logger.warning(
                     "the --packages-select-regex '{pattern}' failed to "
                     'compile: {e}'.format_map(locals()))
@@ -67,7 +67,7 @@ class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
             # check patterns and remove invalid ones
             try:
                 re.compile(pattern)
-            except Exception as e:
+            except Exception as e:  # noqa: F841
                 logger.warning(
                     "the --packages-skip-regex '{pattern}' failed to "
                     'compile: {e}'.format_map(locals()))

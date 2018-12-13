@@ -47,7 +47,7 @@ class IgnorePackageDiscovery(
         for pattern in list(self._args.packages_ignore_regex or []):
             try:
                 re.compile(pattern)
-            except Exception as e:
+            except Exception as e:  # noqa: F841
                 logger.warning(
                     "the --packages-ignore-regex '{pattern}' failed to "
                     'compile: {e}'.format_map(locals()))
