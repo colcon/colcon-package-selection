@@ -32,6 +32,9 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
         parser.add_argument(
             '--packages-skip-by-dep', nargs='*', metavar='DEP_NAME',
             help='Skip packages which (recursively) depend on this')
+        parser.add_argument(
+            '--packages-skip-up-to', nargs='*', metavar='PKG_NAME',
+            help='Skip a subset of packages and their recursive dependencies')
 
     def check_parameters(self, args, pkg_names):  # noqa: D102
         # exit on invalid arguments
@@ -89,6 +92,18 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
             deps = set(args.packages_skip_by_dep)
             for decorator in decorators:
                 if deps & set(decorator.recursive_dependencies):
+                    if decorator.selected:
+                        pkg = decorator.descriptor
+                        logger.info(
+                            "Skipping package '{pkg.name}' in '{pkg.path}'"
+                            .format_map(locals()))
+                        decorator.selected = False
+
+        if args.packages_skip_up_to:
+            skip_pkgs = set(args.packages_skip_up_to)
+            for decorator in reversed(decorators):
+                if decorator.descriptor.name in skip_pkgs:
+                    skip_pkgs |= set(decorator.recursive_dependencies)
                     if decorator.selected:
                         pkg = decorator.descriptor
                         logger.info(
