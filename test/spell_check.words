@@ -1,4 +1,6 @@
 cli
 noqa
 pragma
+rtype
+str
 whitelist
