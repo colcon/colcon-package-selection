@@ -33,7 +33,7 @@ class StoreResultEventHandler(EventHandlerExtensionPoint):
 
         if isinstance(data, TestFailure):
             job = event[1]
-            self._with_test_failures.add(job)
+            self._test_failures.add(job)
 
         elif isinstance(data, JobEnded):
             job = event[1]
