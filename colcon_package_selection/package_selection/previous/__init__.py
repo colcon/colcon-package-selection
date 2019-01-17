@@ -17,7 +17,7 @@ def get_previous_result(package_build_base, verb_name):
     :returns: The previously persisted result, otherwise None
     :rtype: str
     """
-    path = _get_result_path(package_build_base, 'build')
+    path = _get_result_path(package_build_base, verb_name)
     if not path.exists():
         return None
     return path.read_text().rstrip()
