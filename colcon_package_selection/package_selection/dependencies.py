@@ -1,11 +1,28 @@
 # Copyright 2016-2018 Dirk Thomas
 # Licensed under the Apache License, Version 2.0
 
+import argparse
 import sys
 
 from colcon_core.package_selection import logger
 from colcon_core.package_selection import PackageSelectionExtensionPoint
 from colcon_core.plugin_system import satisfies_version
+
+
+class _DepthAndPackageNames(argparse.Action):
+    """Action to assign an integer depth optional package names."""
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        assert len(values) >= 1
+        try:
+            values[0] = int(values[0])
+            if values[0] < 0:
+                raise ValueError()
+        except ValueError:
+            raise argparse.ArgumentError(
+                self, 'the first parameter must be a non-negative integer for '
+                'the depth')
+        setattr(namespace, self.dest, values)
 
 
 class DependenciesPackageSelection(PackageSelectionExtensionPoint):
@@ -25,6 +42,11 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
             '--packages-above', nargs='*', metavar='PKG_NAME',
             help='Only process a subset of packages and packages which '
                  'recursively depend on them')
+        parser.add_argument(
+            '--packages-above-depth', nargs='+',
+            metavar=('DEPTH', 'PKG_NAME'), action=_DepthAndPackageNames,
+            help='Only process a subset of packages and packages which '
+                 'recursively depend on them out to a given depth')
 
         parser.add_argument(
             '--packages-select-by-dep', nargs='*', metavar='DEP_NAME',
@@ -50,6 +72,12 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
                     "Package '{name}' specified with --packages-above "
                     'was not found'
                     .format_map(locals()))
+        for name in (args.packages_above_depth or [])[1:]:
+            if name not in pkg_names:
+                sys.exit(
+                    "Package '{name}' specified with "
+                    '--packages-above-depth was not found'
+                    .format_map(locals()))
 
     def select_packages(self, args, decorators):  # noqa: D102
         if args.packages_up_to:
@@ -70,6 +98,22 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
                 if decorator.descriptor.name in select_pkgs:
                     continue
                 if not (select_pkgs & set(decorator.recursive_dependencies)):
+                    if decorator.selected:
+                        pkg = decorator.descriptor
+                        logger.info(
+                            "Skipping package '{pkg.name}' in '{pkg.path}'"
+                            .format_map(locals()))
+                        decorator.selected = False
+
+        if args.packages_above_depth and len(args.packages_above_depth) > 1:
+            depth = args.packages_above_depth[0]
+            select_pkgs = set(args.packages_above_depth[1:])
+            for decorator in decorators:
+                if decorator.descriptor.name in select_pkgs:
+                    continue
+                if not [d for d in set(decorator.recursive_dependencies)
+                        if d in select_pkgs
+                        and d.metadata['depth'] <= depth]:
                     if decorator.selected:
                         pkg = decorator.descriptor
                         logger.info(
