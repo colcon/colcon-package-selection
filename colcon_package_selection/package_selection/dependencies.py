@@ -111,9 +111,10 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
             for decorator in decorators:
                 if decorator.descriptor.name in select_pkgs:
                     continue
-                if not [d for d in set(decorator.recursive_dependencies)
-                        if d in select_pkgs
-                        and d.metadata['depth'] <= depth]:
+                if not [
+                    d for d in set(decorator.recursive_dependencies)
+                    if d in select_pkgs and d.metadata['depth'] <= depth
+                ]:
                     if decorator.selected:
                         pkg = decorator.descriptor
                         logger.info(
