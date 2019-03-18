@@ -46,7 +46,7 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
             '--packages-above-depth', nargs='+',
             metavar=('DEPTH', 'PKG_NAME'), action=_DepthAndPackageNames,
             help='Only process a subset of packages and packages which '
-                 'recursively depend on them out to a given depth')
+                 'recursively depend on them up to a given depth')
 
         parser.add_argument(
             '--packages-select-by-dep', nargs='*', metavar='DEP_NAME',
