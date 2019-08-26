@@ -2,6 +2,7 @@
 # Licensed under the Apache License, Version 2.0
 
 import argparse
+import os
 import sys
 
 from colcon_core.package_selection import logger
@@ -60,24 +61,27 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
 
     def check_parameters(self, args, pkg_names):  # noqa: D102
         # exit on invalid arguments
+        error_messages = []
         for name in args.packages_up_to or set():
             if name not in pkg_names:
-                sys.exit(
+                error_messages.append(
                     "Package '{name}' specified with --packages-up-to "
                     'was not found'
                     .format_map(locals()))
         for name in args.packages_above or set():
             if name not in pkg_names:
-                sys.exit(
+                error_messages.append(
                     "Package '{name}' specified with --packages-above "
                     'was not found'
                     .format_map(locals()))
         for name in (args.packages_above_depth or [])[1:]:
             if name not in pkg_names:
-                sys.exit(
+                error_messages.append(
                     "Package '{name}' specified with "
                     '--packages-above-depth was not found'
                     .format_map(locals()))
+        if error_messages:
+            sys.exit(os.linesep.join(error_messages))
 
     def select_packages(self, args, decorators):  # noqa: D102
         if args.packages_up_to:
