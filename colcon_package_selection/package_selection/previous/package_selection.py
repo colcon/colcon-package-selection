@@ -59,7 +59,7 @@ class PreviousPackageSelectionExtension(PackageSelectionExtensionPoint):
                 argument = '--packages-skip-test-passed'
             else:
                 assert False
-            logger.warn(
+            logger.warning(
                 "Ignoring '{argument}' since the invoked verb doesn't have a "
                 "'--build-base' argument and therefore can't access "
                 'information about the previous state of a package'
