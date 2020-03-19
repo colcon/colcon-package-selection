@@ -8,6 +8,21 @@ from colcon_core.package_selection import PackageSelectionExtensionPoint
 from colcon_core.plugin_system import satisfies_version
 
 
+def package_name(s):
+    """Validate a package name for argparse."""
+    if s[0] == '-':
+        raise ValueError
+    return s
+
+
+def package_name_regex(s):
+    """Validate a package name regex for argparse."""
+    try:
+        return re.compile(s)
+    except re.error as e:
+        raise ValueError from e
+
+
 class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
     """Select a set of packages based on a whitelist / blacklist."""
 
@@ -18,18 +33,20 @@ class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
 
     def add_arguments(self, *, parser):  # noqa: D102
         parser.add_argument(
-            '--packages-select', nargs='*', metavar='PKG_NAME',
-            help='Only process a subset of packages')
+            '--packages-select', nargs='+', type=package_name,
+            metavar='PKG_NAME', help='Only process a subset of packages')
         parser.add_argument(
-            '--packages-skip', nargs='*', metavar='PKG_NAME',
-            help='Skip a set of packages')
+            '--packages-skip', nargs='+', type=package_name,
+            metavar='PKG_NAME', help='Skip a set of packages')
 
         parser.add_argument(
-            '--packages-select-regex', nargs='*', metavar='PATTERN',
+            '--packages-select-regex', nargs='+', type=package_name_regex,
+            metavar='PATTERN',
             help='Only process a subset of packages where any of the patterns '
                  'match the package name')
         parser.add_argument(
-            '--packages-skip-regex', nargs='*', metavar='PATTERN',
+            '--packages-skip-regex', nargs='+', type=package_name_regex,
+            metavar='PATTERN',
             help='Skip a set of packages where any of the patterns match the '
                  'package name')
 
@@ -48,32 +65,12 @@ class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
                     '--packages-skip'.format_map(locals()))
 
         for pattern in list(args.packages_select_regex or []):
-            # check patterns and remove invalid ones
-            try:
-                re.compile(pattern)
-            except Exception as e:  # noqa: F841
-                logger.warning(
-                    "the --packages-select-regex '{pattern}' failed to "
-                    'compile: {e}'.format_map(locals()))
-                args.packages_select_regex.remove(pattern)
-                continue
-
             if not any(re.match(pattern, pkg_name) for pkg_name in pkg_names):
                 logger.warning(
                     "the --packages-select-regex '{pattern}' doesn't match "
                     'any of the package names'.format_map(locals()))
 
         for pattern in list(args.packages_skip_regex or []):
-            # check patterns and remove invalid ones
-            try:
-                re.compile(pattern)
-            except Exception as e:  # noqa: F841
-                logger.warning(
-                    "the --packages-skip-regex '{pattern}' failed to "
-                    'compile: {e}'.format_map(locals()))
-                args.packages_skip_regex.remove(pattern)
-                continue
-
             if not any(re.match(pattern, pkg_name) for pkg_name in pkg_names):
                 logger.warning(
                     "the --packages-skip-regex '{pattern}' doesn't match any "
