@@ -1,6 +1,7 @@
 # Copyright 2016-2018 Dirk Thomas
 # Licensed under the Apache License, Version 2.0
 
+from argparse import ArgumentTypeError
 import re
 
 from colcon_core.package_selection import logger
@@ -26,10 +27,12 @@ class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
 
         parser.add_argument(
             '--packages-select-regex', nargs='*', metavar='PATTERN',
+            type=_valid_regex,
             help='Only process a subset of packages where any of the patterns '
                  'match the package name')
         parser.add_argument(
             '--packages-skip-regex', nargs='*', metavar='PATTERN',
+            type=_valid_regex,
             help='Skip a set of packages where any of the patterns match the '
                  'package name')
 
@@ -47,33 +50,13 @@ class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
                     "ignoring unknown package '{pkg_name}' in "
                     '--packages-skip'.format_map(locals()))
 
-        for pattern in list(args.packages_select_regex or []):
-            # check patterns and remove invalid ones
-            try:
-                re.compile(pattern)
-            except Exception as e:  # noqa: F841
-                logger.warning(
-                    "the --packages-select-regex '{pattern}' failed to "
-                    'compile: {e}'.format_map(locals()))
-                args.packages_select_regex.remove(pattern)
-                continue
-
+        for pattern in (args.packages_select_regex or []):
             if not any(re.match(pattern, pkg_name) for pkg_name in pkg_names):
                 logger.warning(
                     "the --packages-select-regex '{pattern}' doesn't match "
                     'any of the package names'.format_map(locals()))
 
-        for pattern in list(args.packages_skip_regex or []):
-            # check patterns and remove invalid ones
-            try:
-                re.compile(pattern)
-            except Exception as e:  # noqa: F841
-                logger.warning(
-                    "the --packages-skip-regex '{pattern}' failed to "
-                    'compile: {e}'.format_map(locals()))
-                args.packages_skip_regex.remove(pattern)
-                continue
-
+        for pattern in (args.packages_skip_regex or []):
             if not any(re.match(pattern, pkg_name) for pkg_name in pkg_names):
                 logger.warning(
                     "the --packages-skip-regex '{pattern}' doesn't match any "
@@ -114,3 +97,11 @@ class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
                         "Skipping not selected package '{pkg.name}' in "
                         "'{pkg.path}'".format_map(locals()))
                     decorator.selected = False
+
+
+def _valid_regex(value):
+    try:
+        return re.compile(value)
+    except re.error as e:  # noqa: F841
+        raise ArgumentTypeError(
+            'must be a valid regex: {e}'.format_map(locals()))
