@@ -7,6 +7,7 @@ from colcon_core.package_augmentation import PackageAugmentationExtensionPoint
 from colcon_core.package_discovery import logger
 from colcon_core.package_discovery import PackageDiscoveryExtensionPoint
 from colcon_core.plugin_system import satisfies_version
+from colcon_package_selection.argument import argument_valid_regex
 
 
 class IgnorePackageDiscovery(
@@ -28,6 +29,7 @@ class IgnorePackageDiscovery(
             help='Ignore packages as if they were not discovered')
         parser.add_argument(
             '--packages-ignore-regex', nargs='*', metavar='PATTERN',
+            type=argument_valid_regex,
             help='Ignore packages where any of the patterns match the package '
                  'name')
 
@@ -44,15 +46,7 @@ class IgnorePackageDiscovery(
         pkg_names = {d.name for d in descs}
 
         # check patterns and remove invalid ones
-        for pattern in list(self._args.packages_ignore_regex or []):
-            try:
-                re.compile(pattern)
-            except Exception as e:  # noqa: F841
-                logger.warning(
-                    "the --packages-ignore-regex '{pattern}' failed to "
-                    'compile: {e}'.format_map(locals()))
-                self._args.packages_ignore_regex.remove(pattern)
-
+        for pattern in (self._args.packages_ignore_regex or []):
             if not any(re.match(pattern, pkg_name) for pkg_name in pkg_names):
                 logger.warning(
                     "the --packages-ignore-regex '{pattern}' doesn't match "

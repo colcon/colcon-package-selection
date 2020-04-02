@@ -1,12 +1,12 @@
 # Copyright 2016-2018 Dirk Thomas
 # Licensed under the Apache License, Version 2.0
 
-from argparse import ArgumentTypeError
 import re
 
 from colcon_core.package_selection import logger
 from colcon_core.package_selection import PackageSelectionExtensionPoint
 from colcon_core.plugin_system import satisfies_version
+from colcon_package_selection.argument import argument_valid_regex
 
 
 class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
@@ -27,12 +27,12 @@ class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
 
         parser.add_argument(
             '--packages-select-regex', nargs='*', metavar='PATTERN',
-            type=_valid_regex,
+            type=argument_valid_regex,
             help='Only process a subset of packages where any of the patterns '
                  'match the package name')
         parser.add_argument(
             '--packages-skip-regex', nargs='*', metavar='PATTERN',
-            type=_valid_regex,
+            type=argument_valid_regex,
             help='Skip a set of packages where any of the patterns match the '
                  'package name')
 
@@ -97,11 +97,3 @@ class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
                         "Skipping not selected package '{pkg.name}' in "
                         "'{pkg.path}'".format_map(locals()))
                     decorator.selected = False
-
-
-def _valid_regex(value):
-    try:
-        return re.compile(value)
-    except re.error as e:  # noqa: F841
-        raise ArgumentTypeError(
-            'must be a valid regex: {e}'.format_map(locals()))
