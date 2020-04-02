@@ -54,11 +54,11 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
                  'recursively depend on them up to a given depth')
 
         parser.add_argument(
-            '--packages-select-by-dep', nargs='*', metavar='DEP_NAME',
+            '--packages-select-by-dep', nargs='*', metavar='PKG_NAME',
             type=argument_package_name,
             help='Only process packages which (recursively) depend on this')
         parser.add_argument(
-            '--packages-skip-by-dep', nargs='*', metavar='DEP_NAME',
+            '--packages-skip-by-dep', nargs='*', metavar='PKG_NAME',
             type=argument_package_name,
             help='Skip packages which (recursively) depend on this')
         parser.add_argument(
