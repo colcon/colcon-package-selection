@@ -6,6 +6,7 @@ import sys
 from colcon_core.package_selection import logger
 from colcon_core.package_selection import PackageSelectionExtensionPoint
 from colcon_core.plugin_system import satisfies_version
+from colcon_package_selection.argument import argument_package_name
 
 
 class StartEndPackageSelection(PackageSelectionExtensionPoint):
@@ -19,9 +20,11 @@ class StartEndPackageSelection(PackageSelectionExtensionPoint):
     def add_arguments(self, *, parser):  # noqa: D102
         parser.add_argument(
             '--packages-start', metavar='PKG_NAME',
+            type=argument_package_name,
             help='Skip packages before this in flat topological ordering')
         parser.add_argument(
             '--packages-end', metavar='PKG_NAME',
+            type=argument_package_name,
             help='Skip packages after this in flat topological ordering')
 
     def check_parameters(self, args, pkg_names):  # noqa: D102

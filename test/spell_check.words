@@ -4,6 +4,7 @@ colcon
 deps
 descs
 iterdir
+lstrip
 nargs
 noqa
 pathlib

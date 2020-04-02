@@ -7,6 +7,7 @@ import sys
 from colcon_core.package_selection import logger
 from colcon_core.package_selection import PackageSelectionExtensionPoint
 from colcon_core.plugin_system import satisfies_version
+from colcon_package_selection.argument import argument_package_name
 
 
 class _DepthAndPackageNames(argparse.Action):
@@ -22,6 +23,8 @@ class _DepthAndPackageNames(argparse.Action):
             raise argparse.ArgumentError(
                 self, 'the first parameter must be a non-negative integer for '
                 'the depth')
+        for i in range(1, len(values)):
+            values[i] = argument_package_name(values[i])
         setattr(namespace, self.dest, values)
 
 
@@ -36,10 +39,12 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
     def add_arguments(self, *, parser):  # noqa: D102
         parser.add_argument(
             '--packages-up-to', nargs='*', metavar='PKG_NAME',
+            type=argument_package_name,
             help='Only process a subset of packages and their recursive '
                  'dependencies')
         parser.add_argument(
             '--packages-above', nargs='*', metavar='PKG_NAME',
+            type=argument_package_name,
             help='Only process a subset of packages and packages which '
                  'recursively depend on them')
         parser.add_argument(
@@ -50,12 +55,15 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
 
         parser.add_argument(
             '--packages-select-by-dep', nargs='*', metavar='DEP_NAME',
+            type=argument_package_name,
             help='Only process packages which (recursively) depend on this')
         parser.add_argument(
             '--packages-skip-by-dep', nargs='*', metavar='DEP_NAME',
+            type=argument_package_name,
             help='Skip packages which (recursively) depend on this')
         parser.add_argument(
             '--packages-skip-up-to', nargs='*', metavar='PKG_NAME',
+            type=argument_package_name,
             help='Skip a subset of packages and their recursive dependencies')
 
     def check_parameters(self, args, pkg_names):  # noqa: D102
