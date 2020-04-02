@@ -23,6 +23,8 @@ class _DepthAndPackageNames(argparse.Action):
             raise argparse.ArgumentError(
                 self, 'the first parameter must be a non-negative integer for '
                 'the depth')
+        for i in range(1, len(values)):
+            values[i] = argument_package_name(values[i])
         setattr(namespace, self.dest, values)
 
 
