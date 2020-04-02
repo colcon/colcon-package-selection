@@ -7,6 +7,7 @@ from colcon_core.package_augmentation import PackageAugmentationExtensionPoint
 from colcon_core.package_discovery import logger
 from colcon_core.package_discovery import PackageDiscoveryExtensionPoint
 from colcon_core.plugin_system import satisfies_version
+from colcon_package_selection.argument import argument_package_name
 from colcon_package_selection.argument import argument_valid_regex
 
 
@@ -26,6 +27,7 @@ class IgnorePackageDiscovery(
     def add_arguments(self, *, parser, with_default):  # noqa: D102
         parser.add_argument(
             '--packages-ignore', nargs='*', metavar='PKG_NAME',
+            type=argument_package_name,
             help='Ignore packages as if they were not discovered')
         parser.add_argument(
             '--packages-ignore-regex', nargs='*', metavar='PATTERN',

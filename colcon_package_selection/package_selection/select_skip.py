@@ -6,6 +6,7 @@ import re
 from colcon_core.package_selection import logger
 from colcon_core.package_selection import PackageSelectionExtensionPoint
 from colcon_core.plugin_system import satisfies_version
+from colcon_package_selection.argument import argument_package_name
 from colcon_package_selection.argument import argument_valid_regex
 
 
@@ -20,9 +21,11 @@ class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
     def add_arguments(self, *, parser):  # noqa: D102
         parser.add_argument(
             '--packages-select', nargs='*', metavar='PKG_NAME',
+            type=argument_package_name,
             help='Only process a subset of packages')
         parser.add_argument(
             '--packages-skip', nargs='*', metavar='PKG_NAME',
+            type=argument_package_name,
             help='Skip a set of packages')
 
         parser.add_argument(
