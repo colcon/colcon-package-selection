@@ -2,12 +2,14 @@
 # Licensed under the Apache License, Version 2.0
 
 import argparse
+import re
 import sys
 
 from colcon_core.package_selection import logger
 from colcon_core.package_selection import PackageSelectionExtensionPoint
 from colcon_core.plugin_system import satisfies_version
 from colcon_package_selection.argument import argument_package_name
+from colcon_package_selection.argument import argument_valid_regex
 
 
 class _DepthAndPackageNames(argparse.Action):
@@ -42,6 +44,12 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
             type=argument_package_name,
             help='Only process a subset of packages and their recursive '
                  'dependencies')
+        parser.add_argument(
+            '--packages-up-to-regex', nargs='*', metavar='PATTERN',
+            type=argument_valid_regex,
+            help='Only process a subset of packages and their '
+                 'recursive dependencies, where any of the '
+                 'patterns match the package name')
         parser.add_argument(
             '--packages-above', nargs='*', metavar='PKG_NAME',
             type=argument_package_name,
@@ -81,6 +89,13 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
                     "Package '{name}' specified with --packages-up-to "
                     'was not found'
                     .format_map(locals()))
+        for pattern in (args.packages_up_to_regex or []):
+            if not any(re.match(pattern, pkg_name) for pkg_name in pkg_names):
+                error_messages.append(
+                    "Pattern '{pattern}' specified with "
+                    "--packages-up-to-regex doesn't match "
+                    'any of the package names'
+                    .format_map(locals()))
         for name in args.packages_above or set():
             if name not in pkg_names:
                 error_messages.append(
@@ -103,13 +118,23 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
             sys.exit('\n'.join(error_messages))
 
     def select_packages(self, args, decorators):  # noqa: D102
-        if args.packages_up_to:
-            select_pkgs = set(args.packages_up_to)
+        if (
+            args.packages_up_to is not None or
+            args.packages_up_to_regex is not None
+        ):
+            select_pkgs = set(args.packages_up_to or {})
+            patterns = args.packages_up_to_regex or []
             for decorator in reversed(decorators):
-                if decorator.descriptor.name in select_pkgs:
+                pkg = decorator.descriptor
+                if (
+                    pkg.name in select_pkgs or
+                    any(
+                        re.match(pattern, pkg.name)
+                        for pattern in patterns
+                    )
+                ):
                     select_pkgs |= set(decorator.recursive_dependencies)
                 elif decorator.selected:
-                    pkg = decorator.descriptor
                     logger.info(
                         "Skipping package '{pkg.name}' in '{pkg.path}'"
                         .format_map(locals()))
