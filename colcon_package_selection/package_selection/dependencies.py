@@ -48,6 +48,12 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
             help='Only process a subset of packages and packages which '
                  'recursively depend on them')
         parser.add_argument(
+            '--packages-above-and-dependencies', nargs='*', metavar='PKG_NAME',
+            type=argument_package_name,
+            help='Only process a subset of packages and packages which '
+                 'recursively depend on them including all their recursive '
+                 'dependencies')
+        parser.add_argument(
             '--packages-above-depth', nargs='+',
             metavar=('DEPTH', 'PKG_NAME'), action=_DepthAndPackageNames,
             help='Only process a subset of packages and packages which '
@@ -80,6 +86,12 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
                 error_messages.append(
                     "Package '{name}' specified with --packages-above "
                     'was not found'
+                    .format_map(locals()))
+        for name in args.packages_above_and_dependencies or set():
+            if name not in pkg_names:
+                error_messages.append(
+                    "Package '{name}' specified with "
+                    '--packages-above-and-dependencies was not found'
                     .format_map(locals()))
         for name in (args.packages_above_depth or [])[1:]:
             if name not in pkg_names:
@@ -115,6 +127,25 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
                             "Skipping package '{pkg.name}' in '{pkg.path}'"
                             .format_map(locals()))
                         decorator.selected = False
+
+        if args.packages_above_and_dependencies:
+            # collect all above packages
+            select_pkgs = set(args.packages_above_and_dependencies)
+            for decorator in decorators:
+                if decorator.descriptor.name in select_pkgs:
+                    continue
+                if set(decorator.recursive_dependencies) & select_pkgs:
+                    select_pkgs.add(decorator.descriptor.name)
+
+            for decorator in reversed(decorators):
+                if decorator.descriptor.name in select_pkgs:
+                    select_pkgs |= set(decorator.recursive_dependencies)
+                elif decorator.selected:
+                    pkg = decorator.descriptor
+                    logger.info(
+                        "Skipping package '{pkg.name}' in '{pkg.path}'"
+                        .format_map(locals()))
+                    decorator.selected = False
 
         if args.packages_above_depth and len(args.packages_above_depth) > 1:
             depth = args.packages_above_depth[0]
