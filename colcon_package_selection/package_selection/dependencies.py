@@ -92,10 +92,8 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
         for pattern in (args.packages_up_to_regex or []):
             if not any(re.match(pattern, pkg_name) for pkg_name in pkg_names):
                 error_messages.append(
-                    "Pattern '{pattern}' specified with "
-                    "--packages-up-to-regex doesn't match "
-                    'any of the package names'
-                    .format_map(locals()))
+                    "the --packages-up-to-regex '{pattern}' doesn't match "
+                    'any of the package names'.format_map(locals()))
         for name in args.packages_above or set():
             if name not in pkg_names:
                 error_messages.append(
