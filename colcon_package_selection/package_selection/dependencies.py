@@ -116,20 +116,26 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
             sys.exit('\n'.join(error_messages))
 
     def select_packages(self, args, decorators):  # noqa: D102
-        if (
-            args.packages_up_to is not None or
-            args.packages_up_to_regex is not None
-        ):
-            select_pkgs = set(args.packages_up_to or {})
-            patterns = args.packages_up_to_regex or []
+        if args.packages_up_to:
+            select_pkgs = set(args.packages_up_to)
+            for decorator in reversed(decorators):
+                if decorator.descriptor.name in select_pkgs:
+                    select_pkgs |= set(decorator.recursive_dependencies)
+                elif decorator.selected:
+                    pkg = decorator.descriptor
+                    logger.info(
+                        "Skipping package '{pkg.name}' in '{pkg.path}'"
+                        .format_map(locals()))
+                    decorator.selected = False
+
+        if args.packages_up_to_regex:
+            select_pkgs = set()
+            patterns = args.packages_up_to_regex
             for decorator in reversed(decorators):
                 pkg = decorator.descriptor
                 if (
                     pkg.name in select_pkgs or
-                    any(
-                        re.match(pattern, pkg.name)
-                        for pattern in patterns
-                    )
+                    any(re.match(pattern, pkg.name) for pattern in patterns)
                 ):
                     select_pkgs |= set(decorator.recursive_dependencies)
                 elif decorator.selected:
