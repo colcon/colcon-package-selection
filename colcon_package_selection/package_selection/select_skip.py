@@ -11,7 +11,7 @@ from colcon_package_selection.argument import argument_valid_regex
 
 
 class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
-    """Select a set of packages based on a whitelist / blacklist."""
+    """Select a set of packages based on select / skip criteria."""
 
     def __init__(self):  # noqa: D107
         super().__init__()
