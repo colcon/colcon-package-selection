@@ -11,7 +11,7 @@ from colcon_package_selection.argument import argument_valid_regex
 
 
 class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
-    """Select a set of packages based on a whitelist / blacklist."""
+    """Select a set of packages based on select / skip criteria."""
 
     def __init__(self):  # noqa: D107
         super().__init__()
@@ -81,7 +81,7 @@ class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
                 )
             ):
                 logger.info(
-                    "Skipping blacklisted package '{pkg.name}' in '{pkg.path}'"
+                    "Skipping package '{pkg.name}' in '{pkg.path}'"
                     .format_map(locals()))
                 decorator.selected = False
 
