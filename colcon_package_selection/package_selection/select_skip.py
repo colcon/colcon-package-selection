@@ -81,7 +81,7 @@ class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
                 )
             ):
                 logger.info(
-                    "Skipping blacklisted package '{pkg.name}' in '{pkg.path}'"
+                    "Skipping package '{pkg.name}' in '{pkg.path}'"
                     .format_map(locals()))
                 decorator.selected = False
 
