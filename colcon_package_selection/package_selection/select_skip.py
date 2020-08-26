@@ -55,12 +55,16 @@ class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
 
         for pattern in (args.packages_select_regex or []):
             if not any(re.match(pattern, pkg_name) for pkg_name in pkg_names):
+                if isinstance(pattern, re.Pattern):
+                    pattern = pattern.pattern
                 logger.warning(
                     "the --packages-select-regex '{pattern}' doesn't match "
                     'any of the package names'.format_map(locals()))
 
         for pattern in (args.packages_skip_regex or []):
             if not any(re.match(pattern, pkg_name) for pkg_name in pkg_names):
+                if isinstance(pattern, re.Pattern):
+                    pattern = pattern.pattern
                 logger.warning(
                     "the --packages-skip-regex '{pattern}' doesn't match any "
                     'of the package names'.format_map(locals()))
