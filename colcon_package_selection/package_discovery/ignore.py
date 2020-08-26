@@ -50,6 +50,8 @@ class IgnorePackageDiscovery(
         # check patterns and remove invalid ones
         for pattern in (self._args.packages_ignore_regex or []):
             if not any(re.match(pattern, pkg_name) for pkg_name in pkg_names):
+                if isinstance(pattern, re.Pattern):
+                    pattern = pattern.pattern
                 logger.warning(
                     "the --packages-ignore-regex '{pattern}' doesn't match "
                     'any of the package names'.format_map(locals()))
