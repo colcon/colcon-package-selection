@@ -2,6 +2,7 @@
 # Licensed under the Apache License, Version 2.0
 
 import re
+import typing
 
 from colcon_core.package_augmentation import PackageAugmentationExtensionPoint
 from colcon_core.package_discovery import logger
@@ -50,7 +51,7 @@ class IgnorePackageDiscovery(
         # check patterns and remove invalid ones
         for pattern in (self._args.packages_ignore_regex or []):
             if not any(re.match(pattern, pkg_name) for pkg_name in pkg_names):
-                if isinstance(pattern, re.Pattern):
+                if isinstance(pattern, typing.Pattern):
                     pattern = pattern.pattern
                 logger.warning(
                     "the --packages-ignore-regex '{pattern}' doesn't match "
