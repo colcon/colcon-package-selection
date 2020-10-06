@@ -2,6 +2,7 @@
 # Licensed under the Apache License, Version 2.0
 
 import re
+import typing
 
 from colcon_core.package_selection import logger
 from colcon_core.package_selection import PackageSelectionExtensionPoint
@@ -55,7 +56,7 @@ class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
 
         for pattern in (args.packages_select_regex or []):
             if not any(re.match(pattern, pkg_name) for pkg_name in pkg_names):
-                if isinstance(pattern, re.Pattern):
+                if isinstance(pattern, typing.Pattern):
                     pattern = pattern.pattern
                 logger.warning(
                     "the --packages-select-regex '{pattern}' doesn't match "
@@ -63,7 +64,7 @@ class SelectSkipPackageSelectionExtension(PackageSelectionExtensionPoint):
 
         for pattern in (args.packages_skip_regex or []):
             if not any(re.match(pattern, pkg_name) for pkg_name in pkg_names):
-                if isinstance(pattern, re.Pattern):
+                if isinstance(pattern, typing.Pattern):
                     pattern = pattern.pattern
                 logger.warning(
                     "the --packages-skip-regex '{pattern}' doesn't match any "
