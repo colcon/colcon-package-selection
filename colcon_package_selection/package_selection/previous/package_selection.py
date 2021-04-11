@@ -133,7 +133,7 @@ class PreviousPackageSelectionExtension(PackageSelectionExtensionPoint):
             if args.packages_select_stage_changed:
                 package_kind = None
                 if previous_result == '0':
-                    package_kind = 'curently unchaged'
+                    package_kind = 'currently unchanged'
                 if package_kind is not None:
                     logger.info(
                         "Skipping {package_kind} package '{pkg.name}' in "
@@ -144,8 +144,8 @@ class PreviousPackageSelectionExtension(PackageSelectionExtensionPoint):
                 package_kind = None
                 if previous_result is None:
                     package_kind = 'not previously staged'
-                elif previous_result == 'chaged':
-                    package_kind = 'curently changed'
+                elif previous_result == 'changed':
+                    package_kind = 'currently changed'
                 if package_kind is not None:
                     logger.info(
                         "Skipping {package_kind} package '{pkg.name}' in "
