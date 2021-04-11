@@ -1,4 +1,5 @@
 # Copyright 2019 Dirk Thomas
+# Copyright 2021 Ruffin White
 # Licensed under the Apache License, Version 2.0
 
 import os
@@ -31,6 +32,14 @@ class PreviousPackageSelectionExtension(PackageSelectionExtensionPoint):
             help='Skip a set of packages which have finished to build '
                  'previously')
         group.add_argument(
+            '--packages-select-stage-changed', action='store_true',
+            help='Only process a subset of packages which have changed '
+                 'since staged previously')
+        group.add_argument(
+            '--packages-select-stage-unchanged', action='store_true',
+            help='Only process a subset of packages which are unchanged '
+                 'since staged previously')
+        group.add_argument(
             '--packages-select-test-failures', action='store_true',
             help='Only process a subset of packages which had test failures '
                  'previously')
@@ -43,6 +52,8 @@ class PreviousPackageSelectionExtension(PackageSelectionExtensionPoint):
         if not any((
             args.packages_select_build_failed,
             args.packages_skip_build_finished,
+            args.packages_select_stage_changed,
+            args.packages_select_stage_unchanged,
             args.packages_select_test_failures,
             args.packages_skip_test_passed,
         )):
@@ -53,6 +64,10 @@ class PreviousPackageSelectionExtension(PackageSelectionExtensionPoint):
                 argument = '--packages-select-build-failed'
             elif args.packages_skip_build_finished:
                 argument = '--packages-skip-build-finished'
+            elif args.packages_select_stage_changed:
+                argument = '--packages-select-stage-changed'
+            elif args.packages_select_stage_unchanged:
+                argument = '--packages-select-stage-unchanged'
             elif args.packages_select_test_failures:
                 argument = '--packages-select-test-failures'
             elif args.packages_skip_test_passed:
@@ -78,6 +93,11 @@ class PreviousPackageSelectionExtension(PackageSelectionExtensionPoint):
                 args.packages_skip_build_finished
             ):
                 verb_name = 'build'
+            elif (
+                args.packages_select_stage_changed or
+                args.packages_select_stage_unchanged
+            ):
+                verb_name = 'stage'
             elif (
                 args.packages_select_test_failures or
                 args.packages_skip_test_passed
@@ -107,6 +127,28 @@ class PreviousPackageSelectionExtension(PackageSelectionExtensionPoint):
                 if previous_result == '0':
                     logger.info(
                         "Skipping previously built package '{pkg.name}' in "
+                        "'{pkg.path}'".format_map(locals()))
+                    decorator.selected = False
+            
+            if args.packages_select_stage_changed:
+                package_kind = None
+                if previous_result == 'unchaged':
+                    package_kind = 'curently unchaged'
+                if package_kind is not None:
+                    logger.info(
+                        "Skipping {package_kind} package '{pkg.name}' in "
+                        "'{pkg.path}'".format_map(locals()))
+                    decorator.selected = False
+            
+            if args.packages_select_stage_unchanged:
+                package_kind = None
+                if previous_result is None:
+                    package_kind = 'not previously staged'
+                elif previous_result == 'chaged':
+                    package_kind = 'curently changed'
+                if package_kind is not None:
+                    logger.info(
+                        "Skipping {package_kind} package '{pkg.name}' in "
                         "'{pkg.path}'".format_map(locals()))
                     decorator.selected = False
 

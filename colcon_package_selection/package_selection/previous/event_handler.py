@@ -6,6 +6,7 @@ from colcon_core.event.test import TestFailure
 from colcon_core.event_handler import EventHandlerExtensionPoint
 from colcon_core.plugin_system import satisfies_version
 from colcon_core.verb.build import BuildPackageArguments
+from colcon_core.verb.stage import StagePackageArguments
 from colcon_core.verb.test import TestPackageArguments
 from colcon_package_selection.package_selection.previous \
     import set_result
@@ -40,6 +41,8 @@ class StoreResultEventHandler(EventHandlerExtensionPoint):
 
             if isinstance(job.task_context.args, BuildPackageArguments):
                 verb_name = 'build'
+            elif isinstance(job.task_context.args, StagePackageArguments):
+                verb_name = 'stage'
             elif isinstance(job.task_context.args, TestPackageArguments):
                 verb_name = 'test'
             else:
