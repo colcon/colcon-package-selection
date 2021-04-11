@@ -129,7 +129,7 @@ class PreviousPackageSelectionExtension(PackageSelectionExtensionPoint):
                         "Skipping previously built package '{pkg.name}' in "
                         "'{pkg.path}'".format_map(locals()))
                     decorator.selected = False
-            
+
             if args.packages_select_stage_changed:
                 package_kind = None
                 if previous_result == '0':
@@ -139,7 +139,7 @@ class PreviousPackageSelectionExtension(PackageSelectionExtensionPoint):
                         "Skipping {package_kind} package '{pkg.name}' in "
                         "'{pkg.path}'".format_map(locals()))
                     decorator.selected = False
-            
+
             if args.packages_select_stage_unchanged:
                 package_kind = None
                 if previous_result is None:
