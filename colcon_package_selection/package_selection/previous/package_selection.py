@@ -132,7 +132,7 @@ class PreviousPackageSelectionExtension(PackageSelectionExtensionPoint):
             
             if args.packages_select_stage_changed:
                 package_kind = None
-                if previous_result == 'unchaged':
+                if previous_result == '0':
                     package_kind = 'curently unchaged'
                 if package_kind is not None:
                     logger.info(
