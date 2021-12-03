@@ -43,9 +43,9 @@ class IgnorePackageDiscovery(
     def discover(self, *, args, identification_extensions):  # noqa: D102
         return set()
 
-    def augment_packages(
+    def augment_packages(  # noqa: D102
         self, descs, *, additional_argument_names=None
-    ):  # noqa: D102
+    ):
         pkg_names = {d.name for d in descs}
 
         # check patterns and remove invalid ones
