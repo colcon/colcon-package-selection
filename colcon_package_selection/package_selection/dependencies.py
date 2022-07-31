@@ -41,7 +41,7 @@ class DependenciesPackageSelection(PackageSelectionExtensionPoint):
 
     def add_arguments(self, *, parser):  # noqa: D102
         parser.add_argument(
-            '--packages-up-to', nargs='*', metavar='PKG_NAME',
+            '-u', '--packages-up-to', nargs='*', metavar='PKG_NAME',
             type=argument_package_name,
             help='Only process a subset of packages and their recursive '
                  'dependencies')
