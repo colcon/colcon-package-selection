@@ -4,12 +4,14 @@ colcon
 deps
 descs
 iterdir
+linter
 lstrip
 nargs
 noqa
 pathlib
 pkgs
 plugin
+pydocstyle
 pytest
 rstrip
 rtype
